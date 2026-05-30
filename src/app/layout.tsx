@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "LeakWise — Find the money you didn't know you were losing",
+  title: "TrueDeal — Should I actually buy this?",
   description:
-    "Connect your accounts. See exactly how much you leaked last month — and what it costs you over 10 years.",
+    "Paste a product. We check the right marketplaces, see if the discount is real, summarise the reviews, and tell you exactly where to buy.",
 };
 
 export default function RootLayout({

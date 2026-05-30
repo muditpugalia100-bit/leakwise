@@ -3,14 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --background: #faf7f2;
+  --background: #faf8f5;
   --surface: #ffffff;
-  --foreground: #1f1b16;
+  --foreground: #1d1a16;
   --muted: #f1ece4;
   --muted-foreground: #6b6259;
   --border: #e8e1d4;
-  --accent: #b85c38;
+  --accent: #3d4a7c;
   --accent-foreground: #ffffff;
+}
+
+/* Vertical theming — set on the result page <html> or section root */
+.vertical-general {
+  --accent: #3d4a7c;
+}
+.vertical-electronics {
+  --accent: #c85a3c;
+}
+.vertical-grocery {
+  --accent: #3a6b4f;
+}
+.vertical-travel {
+  --accent: #b8624f;
 }
 
 html,
@@ -29,8 +43,12 @@ body {
   .text-balance {
     text-wrap: balance;
   }
-  .font-serif-display {
+  .font-display {
     font-family: var(--font-fraunces), Georgia, serif;
     font-feature-settings: "ss01", "ss02";
+  }
+  .small-caps {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
   }
 }

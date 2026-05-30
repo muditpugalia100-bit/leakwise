@@ -1,0 +1,124 @@
+import { PLATFORM_NAMES } from "../config";
+import { checkBrandDirect } from "./brand";
+import { combineWorthWaiting, checkDeal, checkTrends, fetchAmazonReviewSamples } from "./enrichers";
+import { buildAnchor, fanoutPlatforms } from "./fanout";
+import { parseInput } from "./parser";
+import { routeVertical } from "./router";
+import { generateSparkline } from "./sparkline";
+import { buildVerdictParagraph, synthesiseReviews } from "./synthesis";
+import type { ComparisonResult, NormalisedListing } from "./types";
+
+function uid(): string {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+export async function runPipeline(raw: string): Promise<ComparisonResult> {
+  const start = Date.now();
+  const input = parseInput(raw);
+
+  // 1. Anchor — find the canonical product on Amazon
+  const anchor = await buildAnchor(input.raw.replace(/^https?:\/\/\S+$/, "").trim() || input.raw, input.asin);
+  const query = anchor?.title ?? input.raw;
+
+  // 2. Vertical routing
+  const vertical = routeVertical(input, anchor ?? undefined);
+
+  // 3. Fan out across the rest of the vertical's platforms
+  const fanout = await fanoutPlatforms(vertical, query);
+
+  // 4. Brand-direct check (in parallel with enrichers below)
+  const brandDirectP = checkBrandDirect(anchor?.brand, query);
+
+  // 5. Enrichments
+  const dealP = checkDeal(query, anchor?.asin);
+  const trendsP = checkTrends(query);
+  const reviewSamplesP = fetchAmazonReviewSamples(anchor?.asin);
+
+  const [brandDirect, deal, trends, reviewSamples] = await Promise.all([
+    brandDirectP,
+    dealP,
+    trendsP,
+    reviewSamplesP,
+  ]);
+
+  // 6. Build the listings array
+  const listings: NormalisedListing[] = [];
+  if (anchor?.amazonListing) listings.push(anchor.amazonListing);
+  listings.push(...fanout.listings);
+
+  if (listings.length === 0) {
+    throw new Error(
+      "Couldn't find this product on any marketplace. Try a more specific query.",
+    );
+  }
+
+  // 7. Determine cheapest / most expensive (excluding brand-direct so we can show its premium-or-discount)
+  const sorted = [...listings].sort((a, b) => a.deliveredPrice - b.deliveredPrice);
+  const cheapest = sorted[0];
+  const mostExpensive = sorted[sorted.length - 1];
+
+  // Effective winner — brand-direct is the winner if it's the cheapest
+  const effectiveWinnerPrice = brandDirect
+    ? Math.min(cheapest.deliveredPrice, brandDirect.deliveredPrice)
+    : cheapest.deliveredPrice;
+  const savings = Math.max(0, mostExpensive.deliveredPrice - effectiveWinnerPrice);
+  const savingsPercent = mostExpensive.deliveredPrice
+    ? (savings / mostExpensive.deliveredPrice) * 100
+    : 0;
+
+  // 8. Price history (deterministic mock per brief)
+  const sparkKey = anchor?.asin ?? anchor?.title ?? input.raw;
+  const { points: priceHistory, verdict: fakeDiscount } = generateSparkline(
+    sparkKey,
+    cheapest.deliveredPrice,
+  );
+
+  // 9. Worth waiting?
+  combineWorthWaiting(deal, trends, fakeDiscount.kind === "fake-discount");
+  // (we expose this on the result via the deal+trends+fakeDiscount fields; the
+  //  UI can call combineWorthWaiting again client-side if it wants. Keeping
+  //  the call here primarily as a sanity warm-up.)
+
+  // 10. Synthesise reviews + verdict paragraph
+  const reviews = await synthesiseReviews(reviewSamples);
+  const verdictParagraph = await buildVerdictParagraph({
+    productTitle: anchor?.title ?? query,
+    cheapest,
+    mostExpensive,
+    savings,
+    brandDirect: brandDirect ?? undefined,
+    fakeDiscount,
+    deal,
+    trends,
+    reviews,
+  });
+
+  const result: ComparisonResult = {
+    id: uid(),
+    createdAt: new Date().toISOString(),
+    vertical,
+    input,
+    product: {
+      title: anchor?.title ?? query,
+      brand: anchor?.brand,
+      imageUrl: anchor?.image,
+      category: PLATFORM_NAMES[vertical === "general" ? "amazon" : "amazon"], // placeholder
+    },
+    listings,
+    cheapest,
+    mostExpensive,
+    brandDirect: brandDirect ?? undefined,
+    savings,
+    savingsPercent,
+    priceHistory,
+    fakeDiscount,
+    trends,
+    deal,
+    reviews,
+    verdictParagraph,
+    durationMs: Date.now() - start,
+    errors: fanout.errors,
+  };
+
+  return result;
+}
