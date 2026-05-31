@@ -4,6 +4,7 @@ import { combineWorthWaiting, checkDeal, checkTrends, fetchAmazonReviewSamples }
 import { buildAnchor, fanoutPlatforms } from "./fanout";
 import { parseInput } from "./parser";
 import { routeVertical } from "./router";
+import { buildSeedResult, findSeed } from "./seed";
 import { generateSparkline } from "./sparkline";
 import { buildVerdictParagraph, synthesiseReviews } from "./synthesis";
 import type { ComparisonResult, NormalisedListing } from "./types";
@@ -12,7 +13,32 @@ function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 }
 
+/**
+ * Public pipeline entry point.
+ *
+ * Strategy: try the live Wire pipeline first. If it throws (Wire degraded,
+ * empty results, network) AND the input matches a curated seed, return the
+ * seed instead so the demo never breaks. When Wire recovers, the seed path
+ * silently stops firing — real data wins.
+ */
 export async function runPipeline(raw: string): Promise<ComparisonResult> {
+  const seed = findSeed(raw);
+  try {
+    return await runWirePipeline(raw);
+  } catch (err) {
+    if (seed) {
+      console.log(
+        `[truedeal] Wire pipeline failed (${
+          err instanceof Error ? err.message : String(err)
+        }); falling back to seed for "${raw.slice(0, 60)}"`,
+      );
+      return buildSeedResult(seed, raw);
+    }
+    throw err;
+  }
+}
+
+async function runWirePipeline(raw: string): Promise<ComparisonResult> {
   const start = Date.now();
   const input = parseInput(raw);
 

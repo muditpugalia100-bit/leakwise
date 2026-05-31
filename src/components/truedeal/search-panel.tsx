@@ -22,7 +22,7 @@ const DEMO_QUERIES = [
   "Sony WH-CH720N headphones",
   "boAt Airdopes 161",
   "Atomic Habits by James Clear",
-  "Philips air fryer HD9252",
+  "Aashirvaad Atta 5kg",
 ];
 
 const STEP_TICK_MS = 480;

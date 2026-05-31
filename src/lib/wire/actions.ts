@@ -249,3 +249,52 @@ export const trendsInterestOverTime = (
     { keyword, geo: "IN", timeframe: "today 3-m" },
     { label: "trends.timeseries", ...opts },
   );
+
+// ── Indian electronics retail (Phase 2) ─────────────────────────────────────
+
+type RawHit = Record<string, unknown>;
+type RawSearch = { results?: RawHit[]; products?: RawHit[]; items?: RawHit[] };
+
+export const cromaSearch = (query: string, pincode: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "cr_search_products",
+    { query, pincode },
+    { label: "croma.search", ...opts },
+  );
+
+export const relianceDigitalSearch = (query: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "rd_search_products",
+    { query },
+    { label: "reliance.search", ...opts },
+  );
+
+export const vijaySalesSearch = (query: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "vs_search_products",
+    { query },
+    { label: "vijaysales.search", ...opts },
+  );
+
+// ── Indian grocery / quick-commerce (Phase 2) ───────────────────────────────
+
+export const blinkitSearch = (query: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "act_blinkit_post_layout_search",
+    { q: query, search_type: "default", search_page: "search" },
+    { label: "blinkit.search", ...opts },
+  );
+
+export const bigbasketSearch = (query: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "bb_search_products",
+    { query },
+    { label: "bigbasket.search", ...opts },
+  );
+
+export const jiomartSearch = (query: string, opts: RunOptions = {}) =>
+  tryRunAction<RawSearch>(
+    "jm_search_products",
+    { query },
+    { label: "jiomart.search", ...opts },
+  );

@@ -1,10 +1,16 @@
 import type { PlatformId, Vertical } from "../config";
-import { PLATFORM_NAMES, VERTICALS } from "../config";
+import { DEMO_PINCODE, PLATFORM_NAMES, VERTICALS } from "../config";
 import {
   amazonDetails,
   amazonSearch,
+  bigbasketSearch,
+  blinkitSearch,
+  cromaSearch,
   ebaySearch,
   flipkartSearch,
+  jiomartSearch,
+  relianceDigitalSearch,
+  vijaySalesSearch,
 } from "../wire/actions";
 import type { NormalisedListing } from "./types";
 
@@ -86,7 +92,51 @@ function normEbayHit(raw: Record<string, unknown>): NormalisedListing | null {
   };
 }
 
-const HIT_LIST_KEYS = ["results", "products", "listings"] as const;
+// ── Generic Indian-retail normaliser ────────────────────────────────────────
+// Covers Croma, Reliance Digital, Vijay Sales, Blinkit, BigBasket, JioMart —
+// each has slightly different field names, this tries the common candidates.
+
+function normGenericIndianHit(
+  platform: PlatformId,
+): (raw: Record<string, unknown>) => NormalisedListing | null {
+  return (raw) => {
+    const price = asNumber(
+      raw.price ?? raw.offer_price ?? raw.selling_price ?? raw.sp ?? raw.mrp,
+    );
+    if (!price) return null;
+    const title =
+      (raw.title as string) ?? (raw.name as string) ?? "Unknown product";
+    const url =
+      (raw.url as string) ??
+      (raw.product_url as string) ??
+      (raw.permalink as string) ??
+      "#";
+    const image =
+      (raw.image as string) ??
+      (raw.image_url as string) ??
+      (raw.images as string[] | undefined)?.[0];
+    const offerNote =
+      (raw.offer_text as string) ??
+      (raw.promo as string) ??
+      undefined;
+    return {
+      platform,
+      platformName: PLATFORM_NAMES[platform],
+      title,
+      brand: (raw.brand as string) ?? undefined,
+      productUrl: url,
+      imageUrl: image,
+      listedPrice: price,
+      deliveryCost: 0,
+      deliveredPrice: price,
+      inStock: true,
+      rating: typeof raw.rating === "number" ? raw.rating : undefined,
+      offerNote,
+    };
+  };
+}
+
+const HIT_LIST_KEYS = ["results", "products", "listings", "items"] as const;
 
 function firstHit<T = Record<string, unknown>>(
   payload: unknown,
@@ -170,11 +220,68 @@ async function searchEbay(query: string): Promise<NormalisedListing | null> {
   return top ? normEbayHit(top) : null;
 }
 
+// ── Phase 2 platform runners ────────────────────────────────────────────────
+
+const normCromaHit = normGenericIndianHit("croma");
+const normRelianceHit = normGenericIndianHit("reliance_digital");
+const normVijayHit = normGenericIndianHit("vijaysales");
+const normBlinkitHit = normGenericIndianHit("blinkit");
+const normBigbasketHit = normGenericIndianHit("bigbasket");
+const normJiomartHit = normGenericIndianHit("jiomart");
+
+async function searchCroma(query: string): Promise<NormalisedListing | null> {
+  const r = await cromaSearch(query, DEMO_PINCODE, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normCromaHit(top) : null;
+}
+
+async function searchReliance(query: string): Promise<NormalisedListing | null> {
+  const r = await relianceDigitalSearch(query, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normRelianceHit(top) : null;
+}
+
+async function searchVijay(query: string): Promise<NormalisedListing | null> {
+  const r = await vijaySalesSearch(query, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normVijayHit(top) : null;
+}
+
+async function searchBlinkit(query: string): Promise<NormalisedListing | null> {
+  const r = await blinkitSearch(query, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normBlinkitHit(top) : null;
+}
+
+async function searchBigbasket(query: string): Promise<NormalisedListing | null> {
+  const r = await bigbasketSearch(query, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normBigbasketHit(top) : null;
+}
+
+async function searchJiomart(query: string): Promise<NormalisedListing | null> {
+  const r = await jiomartSearch(query, { timeoutMs: 22_000 });
+  if (!r.ok) return null;
+  const top = firstHit<Record<string, unknown>>(r.data);
+  return top ? normJiomartHit(top) : null;
+}
+
 // ── Fan-out across the vertical's platforms ─────────────────────────────────
 
 const PLATFORM_RUNNERS: Partial<Record<PlatformId, (q: string) => Promise<NormalisedListing | null>>> = {
   flipkart: searchFlipkart,
   ebay: searchEbay,
+  croma: searchCroma,
+  reliance_digital: searchReliance,
+  vijaysales: searchVijay,
+  blinkit: searchBlinkit,
+  bigbasket: searchBigbasket,
+  jiomart: searchJiomart,
 };
 
 export async function fanoutPlatforms(
