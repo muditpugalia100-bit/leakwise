@@ -6,7 +6,7 @@
  * downstream; here we just hand off raw `data` with rough type hints.
  */
 
-import { runAction, tryRunAction, type RunOptions } from "./client";
+import { tryRunAction, type RunOptions } from "./client";
 
 // ── Amazon ──────────────────────────────────────────────────────────────────
 
