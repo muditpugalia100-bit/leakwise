@@ -4,7 +4,7 @@ import { combineWorthWaiting, checkDeal, checkTrends, fetchAmazonReviewSamples }
 import { buildAnchor, fanoutPlatforms } from "./fanout";
 import { parseInput } from "./parser";
 import { routeVertical } from "./router";
-import { buildSeedResult, findSeed } from "./seed";
+import { buildSeedResult, findSeed, type SeedDef } from "./seed";
 import { generateSparkline } from "./sparkline";
 import { buildVerdictParagraph, synthesiseReviews } from "./synthesis";
 import type { ComparisonResult, NormalisedListing } from "./types";
@@ -32,9 +32,54 @@ export async function runPipeline(raw: string): Promise<ComparisonResult> {
           err instanceof Error ? err.message : String(err)
         }); falling back to seed for "${raw.slice(0, 60)}"`,
       );
-      return buildSeedResult(seed, raw);
+      const base = buildSeedResult(seed, raw);
+      return enhanceSeedWithGemini(base, seed);
     }
     throw err;
+  }
+}
+
+/**
+ * When GEMINI_API_KEY is present, let Gemini regenerate the verdict paragraph
+ * and the 3-line review summary from the seed's structured data. Keeps the
+ * seed as the canonical truth (prices, deals, brand-direct) but upgrades the
+ * narrative from hand-written to model-generated — visible on the result page
+ * as the "Synthesised by Gemini" tag.
+ *
+ * Gracefully degrades to the seed's hand-written paragraph if Gemini fails.
+ */
+async function enhanceSeedWithGemini(
+  base: ComparisonResult,
+  seed: SeedDef,
+): Promise<ComparisonResult> {
+  if (!process.env.GEMINI_API_KEY) return base;
+  try {
+    const reviews = await synthesiseReviews(
+      seed.reviewSamples.map((s) => ({
+        rating: s.rating,
+        title: s.title,
+        text: s.text,
+      })),
+    );
+    const verdictParagraph = await buildVerdictParagraph({
+      productTitle: base.product.title,
+      cheapest: base.cheapest,
+      mostExpensive: base.mostExpensive,
+      savings: base.savings,
+      brandDirect: base.brandDirect,
+      fakeDiscount: base.fakeDiscount,
+      deal: base.deal,
+      trends: base.trends,
+      reviews,
+    });
+    return { ...base, reviews, verdictParagraph };
+  } catch (err) {
+    console.log(
+      `[truedeal] Gemini enhancement failed: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+    return base;
   }
 }
 

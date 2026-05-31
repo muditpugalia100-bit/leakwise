@@ -30,7 +30,13 @@ interface SeedListingSpec {
   offerNote?: string;
 }
 
-interface SeedDef {
+interface SeedReviewSample {
+  rating: number;
+  title: string;
+  text: string;
+}
+
+export interface SeedDef {
   matchers: RegExp[];
   vertical: Vertical;
   product: { title: string; brand: string };
@@ -45,6 +51,8 @@ interface SeedDef {
   trends: TrendsSignal;
   deal: DealSignal;
   reviews: { love: string; complain: string; verdict: string };
+  /** Hand-crafted review samples — used when Gemini re-synthesises a seed verdict. */
+  reviewSamples: SeedReviewSample[];
   verdictParagraph: string;
 }
 
@@ -120,6 +128,13 @@ const SONY_CH720N: SeedDef = {
     complain: "Noise cancellation is mild — fine for office and commute, but visibly weaker than Sony's premium XM series.",
     verdict: "Strongly positive — best mid-range Sony for under ₹7,000.",
   },
+  reviewSamples: [
+    { rating: 5, title: "Great mid-range Sony", text: "Battery genuinely lasts a full work week. Comfortable for long meetings. Sound is balanced — not bass-heavy. Worth the price." },
+    { rating: 4, title: "ANC is okay, not great", text: "Solid headphones but the noise cancellation is mild compared to the XM5. Fine for office, won't kill plane engine noise." },
+    { rating: 5, title: "Comfort is the best part", text: "I forget I'm wearing them after a couple of hours. The earcups are soft and the clamp is just right. Sony build quality intact." },
+    { rating: 4, title: "Good buy under 6k", text: "If you want something better than budget earbuds without spending XM money, this is the sweet spot. Mic for calls is average though." },
+    { rating: 2, title: "Bluetooth flaky on Windows 11", text: "Pairs fine with phone but drops every 10 min on my laptop. Returned. Phone-only use case is solid, just be aware." },
+  ],
   verdictParagraph:
     "Buy from Amazon — ₹5,799 delivered is the floor right now and the 30-day chart confirms this is a real low, not a paper discount. Vijay Sales is the next-best landed at ₹6,290, while Croma sits ₹1,491 higher even before EMI. Amazon currently flags this on Daily Deals, so the price window likely closes in 24 hours. Most owners love the fit and the 35-hour battery; the most common complaint is mild noise cancellation versus the XM series — fine for commuting, not flagship grade. Move today.",
 };
@@ -192,6 +207,14 @@ const BOAT_AIRDOPES: SeedDef = {
     complain: "Quality control is uneven — about 1 in 8 reviews mention left-right sync drift after a few weeks.",
     verdict: "Mostly positive — good budget pick, just check return-window terms.",
   },
+  reviewSamples: [
+    { rating: 5, title: "Insane value", text: "Bass is punchy, battery lasts forever, case is compact. For ₹1k these are genuinely better than they have any right to be." },
+    { rating: 4, title: "Sound is great, build is meh", text: "Audio is solid for the price but the case latch feels cheap. Mic picks up wind. Still recommend if you're on a budget." },
+    { rating: 2, title: "Left earbud died in 3 months", text: "Worked great for two months then the left one stopped charging. Replacement process was painful. Take the warranty seriously." },
+    { rating: 5, title: "Daily driver", text: "Wear them through gym sessions, commute, calls. Battery lasts the full day on one charge. Bass is fun without being muddy." },
+    { rating: 3, title: "L/R sync drifts after a few weeks", text: "Within a month one earbud started lagging by half a second. Re-pairing fixes it but it comes back. Annoying for video calls." },
+    { rating: 4, title: "Punchy bass, light fit", text: "Comfortable to wear for hours. Sounds clearly tuned for bass which I like. Touch controls are sometimes finicky." },
+  ],
   verdictParagraph:
     "Buy direct from boat-lifestyle.com — ₹999 with free shipping beats every marketplace by ₹200–₹600 once delivery is counted, and brand-direct also gives you the proper boAt warranty (marketplace returns are uneven on this SKU). The Amazon and Flipkart 'discount from ₹2,499' is mostly cosmetic — the 30-day average sits near ₹1,180, so the marketplace listings aren't even at their own recent low. Most buyers love the bass and 40-hour battery; the most common complaint is L/R sync drift after a few weeks — bigger reason to keep the warranty intact by buying direct.",
 };
@@ -250,6 +273,13 @@ const ATOMIC_HABITS: SeedDef = {
     complain: "The second half of the book is widely seen as a re-statement of the first half — feels longer than it needs to be.",
     verdict: "Strongly positive — single most-recommended habit book on Indian bookstagram.",
   },
+  reviewSamples: [
+    { rating: 5, title: "Changed how I approach habits", text: "The habit-stacking idea alone was worth the price. Started small, kept the streak, three months later I'm doing things I never thought I'd stick with." },
+    { rating: 5, title: "Practical, not preachy", text: "Unlike most self-help books this one gives you specific systems you can apply tomorrow. The 1% better idea is simple but powerful." },
+    { rating: 3, title: "First half >> second half", text: "First 120 pages are gold. After that it starts repeating itself in different words. Could've been 60% shorter without losing value." },
+    { rating: 4, title: "Worth buying, will re-read", text: "Came back to it three months later and got more out of it the second time. Not flashy writing but the ideas are clean." },
+    { rating: 5, title: "Recommended to my whole team", text: "We did this as a workplace book club and everyone walked out with at least one habit they actually kept. Rare for a non-fiction book." },
+  ],
   verdictParagraph:
     "Buy from Amazon — ₹399 is the standard floor across marketplaces and matches the 30-day average exactly. Flipkart is ₹20 over and eBay's new paperback comes in at ₹560 once US shipping is in. Readers love the habit-stacking framework, but most reviewers feel the second half re-states the first — so don't expect the back chapters to add much. Books don't go on real sales; buying today is the same as buying next week.",
 };
@@ -311,6 +341,13 @@ const AASHIRVAAD_ATTA: SeedDef = {
     complain: "Occasional packs arrive with damaged corners on quick-commerce platforms — pack quality, not flour quality.",
     verdict: "Positive — Aashirvaad remains the default-trusted choice across most Indian kitchens.",
   },
+  reviewSamples: [
+    { rating: 5, title: "Soft rotis every time", text: "Switched from local mill to this and the difference in roti texture is real. Soft, doesn't dry out, kids eat without complaining." },
+    { rating: 4, title: "Reliable choice", text: "Default-trust brand for atta. Smell is fresh, no impurities, packaging is sturdy. Price varies week to week but worth it." },
+    { rating: 3, title: "Pack arrived torn from Blinkit", text: "The flour itself is great but the pack came with one corner ripped open. Asked for replacement, got it next day. QC on delivery is the issue." },
+    { rating: 5, title: "Same quality every pack", text: "Buy this every month, never had a bad pack. Consistency is what I'm paying for over cheaper alternatives." },
+    { rating: 4, title: "BigBasket BB Star is the best price", text: "Cross-checked across apps — BigBasket with the membership comes out cheapest. Quick commerce charges a premium for the 10-min delivery." },
+  ],
   verdictParagraph:
     "Buy from BigBasket — ₹229 with BB Star beats every other delivered price by ₹16–₹60 and arrives the same day. Blinkit is the right pick at ₹245 only if you need it in 10 minutes; Amazon Fresh and JioMart trail. Atta prices barely move so there's nothing to gain by waiting. The per-pack saving is small, but at ~18 grocery runs a year the projected savings on the bottom card stop being a rounding error.",
 };

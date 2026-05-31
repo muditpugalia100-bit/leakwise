@@ -281,7 +281,7 @@ export const vijaySalesSearch = (query: string, opts: RunOptions = {}) =>
 export const blinkitSearch = (query: string, opts: RunOptions = {}) =>
   tryRunAction<RawSearch>(
     "act_blinkit_post_layout_search",
-    { q: query, search_type: "default", search_page: "search" },
+    { q: query, search_type: "type_to_search", search_page: "initial" },
     { label: "blinkit.search", ...opts },
   );
 
