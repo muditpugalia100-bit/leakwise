@@ -12,7 +12,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { VERTICALS } from "@/lib/config";
+import { PLATFORM_COLORS, VERTICALS } from "@/lib/config";
 import { formatINR, formatINRShort } from "@/lib/format";
 import type { ComparisonResult } from "@/lib/engine/types";
 import { combineWorthWaiting } from "@/lib/engine/enrichers";
@@ -121,9 +121,25 @@ export function ResultView({ id }: { id: string }) {
           className="mt-10 animate-fade-up"
           style={{ animationDelay: "120ms" }}
         >
-          <p className="small-caps text-xs" style={{ color: accent }}>
-            Verdict
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="small-caps text-xs" style={{ color: accent }}>
+              Verdict
+            </p>
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[10px] text-muted-foreground"
+              title="Sources checked and total pipeline time"
+            >
+              <span className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inset-0 animate-ping rounded-full bg-foreground/30" />
+                <span
+                  className="relative h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: accent }}
+                />
+              </span>
+              {result.listings.length + (result.brandDirect ? 1 : 0)} sources ·{" "}
+              {(result.durationMs / 1000).toFixed(1)}s
+            </span>
+          </div>
           <div className="mt-2 flex items-baseline gap-3">
             <h2
               className="font-display text-6xl sm:text-7xl tracking-tightest"
@@ -159,7 +175,54 @@ export function ResultView({ id }: { id: string }) {
             <Sparkles className="h-3 w-3" />
             {result.reviews.source === "gemini"
               ? "Synthesised by Gemini from live data"
-              : "Composed from live Wire data"}
+              : "Composed from live data"}
+          </div>
+
+          {/* Signal chips */}
+          <div className="mt-5 flex flex-wrap gap-1.5">
+            <SignalChip
+              tone={
+                result.fakeDiscount.kind === "fake-discount"
+                  ? "bad"
+                  : result.fakeDiscount.kind === "real-deal"
+                    ? "good"
+                    : "neutral"
+              }
+              label={
+                result.fakeDiscount.kind === "fake-discount"
+                  ? "Fake discount"
+                  : result.fakeDiscount.kind === "real-deal"
+                    ? "Real deal"
+                    : "Stable price"
+              }
+            />
+            <SignalChip
+              tone={result.deal.kind === "active-deal" ? "good" : "neutral"}
+              label={
+                result.deal.kind === "active-deal"
+                  ? "Deal active"
+                  : "No active deal"
+              }
+            />
+            <SignalChip
+              tone={
+                result.trends.kind === "rising"
+                  ? "warn"
+                  : result.trends.kind === "falling"
+                    ? "good"
+                    : "neutral"
+              }
+              label={
+                result.trends.kind === "rising"
+                  ? "Demand rising"
+                  : result.trends.kind === "falling"
+                    ? "Demand falling"
+                    : "Demand flat"
+              }
+            />
+            {result.brandDirect && (
+              <SignalChip tone="good" label="Brand direct wins" />
+            )}
           </div>
         </section>
 
@@ -187,9 +250,16 @@ export function ResultView({ id }: { id: string }) {
                     className="group flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgb(0_0_0_/0.04)]"
                   >
                     <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: accent }}
-                    />
+                      className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                      style={{
+                        backgroundColor: `${PLATFORM_COLORS[l.platform]}18`,
+                      }}
+                    >
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: PLATFORM_COLORS[l.platform] }}
+                      />
+                    </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground">
@@ -306,7 +376,15 @@ export function ResultView({ id }: { id: string }) {
           </h3>
           <div className="mt-3 rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <div className="-ml-2">
-              <PriceHistoryChart data={result.priceHistory} accent={accent} />
+              <PriceHistoryChart
+                data={result.priceHistory}
+                accent={accent}
+                recentAverage={
+                  result.fakeDiscount.kind === "fake-discount"
+                    ? result.fakeDiscount.thirtyDayAverage
+                    : undefined
+                }
+              />
             </div>
             <div
               className={`mt-4 rounded-xl px-4 py-3 text-sm ${
@@ -468,5 +546,31 @@ function ReviewLine({
       </span>
       <p className="mt-1 text-sm text-foreground/85 leading-snug">{text}</p>
     </div>
+  );
+}
+
+function SignalChip({
+  tone,
+  label,
+}: {
+  tone: "good" | "warn" | "bad" | "neutral";
+  label: string;
+}) {
+  const dotColor =
+    tone === "good"
+      ? "#3A6B4F"
+      : tone === "warn"
+        ? "#C85A3C"
+        : tone === "bad"
+          ? "#9F3939"
+          : "#6B6259";
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] text-foreground/80">
+      <span
+        className="h-1.5 w-1.5 rounded-full"
+        style={{ backgroundColor: dotColor }}
+      />
+      {label}
+    </span>
   );
 }

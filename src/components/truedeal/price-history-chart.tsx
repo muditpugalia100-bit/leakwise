@@ -3,6 +3,7 @@
 import {
   Area,
   AreaChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -15,9 +16,11 @@ import type { PriceHistoryPoint } from "@/lib/engine/types";
 export function PriceHistoryChart({
   data,
   accent,
+  recentAverage,
 }: {
   data: PriceHistoryPoint[];
   accent: string;
+  recentAverage?: number;
 }) {
   return (
     <ResponsiveContainer width="100%" height={180}>
@@ -82,6 +85,21 @@ export function PriceHistoryChart({
           fill={`url(#spark-${accent.slice(1)})`}
           activeDot={{ r: 4, strokeWidth: 0, fill: accent }}
         />
+        {recentAverage != null && (
+          <ReferenceLine
+            y={recentAverage}
+            stroke="#9F3939"
+            strokeDasharray="4 4"
+            strokeWidth={1.5}
+            label={{
+              value: `30-day avg ${formatINR(recentAverage)}`,
+              position: "insideTopRight",
+              fill: "#9F3939",
+              fontSize: 11,
+              dy: -4,
+            }}
+          />
+        )}
       </AreaChart>
     </ResponsiveContainer>
   );

@@ -93,6 +93,13 @@ const SONY_CH720N: SeedDef = {
       productUrl: "https://www.vijaysales.com/p/sony-wh-ch720n",
       price: 6290,
     },
+    {
+      platform: "blinkit",
+      title: "Sony WH-CH720N — Noise Cancelling Headphones",
+      productUrl: "https://blinkit.com/prn/sony-wh-ch720n",
+      price: 6499,
+      offerNote: "10-min delivery in select cities",
+    },
   ],
   fakeDiscount: {
     kind: "real-deal",
@@ -150,6 +157,13 @@ const BOAT_AIRDOPES: SeedDef = {
       price: 1399,
       delivery: 200,
       offerNote: "Condition: New, US ship",
+    },
+    {
+      platform: "blinkit",
+      title: "boAt Airdopes 161 TWS Earbuds — Active Black",
+      productUrl: "https://blinkit.com/prn/boat-airdopes-161",
+      price: 1149,
+      offerNote: "10-min delivery",
     },
   ],
   brandDirect: {

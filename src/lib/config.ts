@@ -31,7 +31,7 @@ export const VERTICALS: Record<Vertical, VerticalConfig> = {
     shortLabel: "General",
     tagline: "Books, gadgets, household, anything not specialised.",
     accent: "#3D4A7C",
-    platforms: ["amazon", "flipkart", "ebay"],
+    platforms: ["amazon", "flipkart", "ebay", "blinkit"],
   },
   electronics: {
     id: "electronics",
@@ -39,7 +39,7 @@ export const VERTICALS: Record<Vertical, VerticalConfig> = {
     shortLabel: "Electronics",
     tagline: "TVs, laptops, headphones, appliances.",
     accent: "#C85A3C",
-    platforms: ["amazon", "flipkart", "croma", "reliance_digital", "vijaysales"],
+    platforms: ["amazon", "flipkart", "croma", "reliance_digital", "vijaysales", "blinkit"],
   },
   grocery: {
     id: "grocery",
@@ -73,6 +73,26 @@ export const PLATFORM_NAMES: Record<PlatformId, string> = {
   shopify: "Brand site",
   trustpilot: "Trustpilot",
   google_trends: "Google Trends",
+};
+
+/**
+ * Brand-recognisable colour for each platform.
+ * Used as a small visual accent on comparison cards. The vertical accent
+ * remains the dominant colour of the page; these are subtle identity dots.
+ */
+export const PLATFORM_COLORS: Record<PlatformId, string> = {
+  amazon: "#FF9900",
+  flipkart: "#2874F0",
+  ebay: "#E53238",
+  croma: "#1A1A1A",
+  reliance_digital: "#ED1C24",
+  vijaysales: "#002F5E",
+  blinkit: "#F8CB46",
+  bigbasket: "#84C225",
+  jiomart: "#2F77AE",
+  shopify: "#95BF47",
+  trustpilot: "#00B67A",
+  google_trends: "#4285F4",
 };
 
 /**
