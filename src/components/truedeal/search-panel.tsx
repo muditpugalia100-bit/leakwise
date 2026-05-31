@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowRight, Sparkles } from "lucide-react";
 
 import { CategoryTiles } from "./category-tiles";
 import type { ComparisonResult } from "@/lib/engine/types";
@@ -161,8 +161,32 @@ export function SearchPanel() {
       </div>
 
       {error && (
-        <div className="mt-6 rounded-xl border border-signal-bad/40 bg-signal-bad/5 px-4 py-3 text-sm text-signal-bad">
-          {error}
+        <div
+          className="mt-6 rounded-2xl border px-5 py-4"
+          style={{
+            borderColor: "rgba(159, 57, 57, 0.25)",
+            backgroundColor: "rgba(159, 57, 57, 0.05)",
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              className="mt-0.5 h-4 w-4 shrink-0"
+              style={{ color: "#9F3939" }}
+            />
+            <div className="flex-1 text-sm">
+              <div className="font-medium" style={{ color: "#9F3939" }}>
+                Couldn&apos;t complete this search.
+              </div>
+              <p className="mt-1 text-foreground/70 leading-relaxed">
+                {error}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Wire&apos;s scraping backend is intermittently degraded today —
+                try one of the demo queries above to see the full TrueDeal
+                experience.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
