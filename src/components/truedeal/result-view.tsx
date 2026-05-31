@@ -5,19 +5,33 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
+  Check,
   CheckCircle2,
   Clock,
+  Headphones,
+  Link as LinkIcon,
+  Plane,
+  ShoppingBasket,
   Sparkles,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 
 import { PLATFORM_COLORS, VERTICALS } from "@/lib/config";
+import type { Vertical } from "@/lib/config";
 import { formatINR, formatINRShort } from "@/lib/format";
 import type { ComparisonResult } from "@/lib/engine/types";
 import { combineWorthWaiting } from "@/lib/engine/enrichers";
 import { CountUp } from "@/components/count-up";
+import { ConfettiBurst } from "./confetti-burst";
 import { PriceHistoryChart } from "./price-history-chart";
+
+const VERTICAL_ICON: Record<Vertical, typeof Sparkles> = {
+  general: Sparkles,
+  electronics: Headphones,
+  grocery: ShoppingBasket,
+  travel: Plane,
+};
 
 const ANNUAL_RATE = 0.12;
 const HORIZON_YEARS = 10;
@@ -49,26 +63,38 @@ export function ResultView({ id }: { id: string }) {
 
   if (missing) {
     return (
-      <div className="mx-auto mt-32 max-w-md text-center">
-        <h2 className="font-display text-3xl tracking-tight">Result expired</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          We don&apos;t store results between sessions yet. Run the search again
-          from the home page.
-        </p>
-        <Link
-          href="/"
-          className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm text-background"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to TrueDeal
-        </Link>
+      <div className="min-h-screen px-5 py-6 sm:px-8 sm:py-8 animate-fade-in">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mt-32">
+            <span className="small-caps text-xs text-muted-foreground">
+              No result in session
+            </span>
+            <h2 className="mt-4 font-display text-4xl tracking-tightest text-balance">
+              This result has expired.
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+              TrueDeal keeps results in your browser session only — opening a
+              shared link won&apos;t replay the search. Run it again from the
+              home page.
+            </p>
+            <Link
+              href="/"
+              className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm text-background transition-transform hover:-translate-y-0.5"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to TrueDeal
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className="mx-auto mt-32 max-w-md text-center text-sm text-muted-foreground">
-        Loading result…
+      <div className="min-h-screen px-5 py-6 sm:px-8 sm:py-8 animate-fade-in">
+        <div className="mx-auto mt-40 max-w-md text-center text-sm text-muted-foreground">
+          Loading result…
+        </div>
       </div>
     );
   }
@@ -84,11 +110,17 @@ export function ResultView({ id }: { id: string }) {
     result.fakeDiscount.kind === "fake-discount",
   );
 
+  const shouldConfetti =
+    result.savings >= 500 || result.savingsPercent >= 20;
+
+  const VerticalIcon = VERTICAL_ICON[result.vertical];
+
   return (
     <div
-      className={`vertical-${result.vertical} min-h-screen`}
+      className={`vertical-${result.vertical} min-h-screen animate-fade-in`}
       style={{ ["--accent" as never]: accent }}
     >
+      <ConfettiBurst trigger={shouldConfetti} color={accent} />
       <div className="mx-auto max-w-page px-5 py-6 sm:px-8 sm:py-8">
         {/* Header */}
         <header className="flex items-center justify-between gap-4">
@@ -98,12 +130,16 @@ export function ResultView({ id }: { id: string }) {
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
-          <span
-            className="small-caps text-xs"
-            style={{ color: accent }}
-          >
-            {vertical.label}
-          </span>
+          <div className="flex items-center gap-3">
+            <ShareButton />
+            <span
+              className="inline-flex items-center gap-1.5 small-caps text-xs"
+              style={{ color: accent }}
+            >
+              <VerticalIcon className="h-3.5 w-3.5" />
+              {vertical.label}
+            </span>
+          </div>
         </header>
 
         {/* Title */}
@@ -546,6 +582,36 @@ function ReviewLine({
       </span>
       <p className="mt-1 text-sm text-foreground/85 leading-snug">{text}</p>
     </div>
+  );
+}
+
+function ShareButton() {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1800);
+        } catch {
+          /* noop */
+        }
+      }}
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+      aria-label="Copy share link"
+    >
+      {copied ? (
+        <>
+          <Check className="h-3 w-3" /> Copied
+        </>
+      ) : (
+        <>
+          <LinkIcon className="h-3 w-3" /> Share
+        </>
+      )}
+    </button>
   );
 }
 
