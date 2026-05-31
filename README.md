@@ -2,7 +2,7 @@
 
 > *Should I actually buy this?* A category-aware shopping comparison agent for Indian buyers. Paste a product URL or describe a product, and TrueDeal fans out across the right marketplaces, asks Gemini for a verdict, and tells you exactly where to buy — and what the savings compound to over ten years.
 
-**Live demo →** [leakwise.vercel.app](https://leakwise.vercel.app) *(domain rename to truedeal.vercel.app in progress)*
+**Live demo →** [truedealsa.vercel.app](https://truedealsa.vercel.app)
 
 ---
 
