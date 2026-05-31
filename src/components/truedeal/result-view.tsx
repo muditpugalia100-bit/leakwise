@@ -209,9 +209,7 @@ export function ResultView({ id }: { id: string }) {
           </p>
           <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            {result.reviews.source === "gemini"
-              ? "Synthesised by Gemini from live data"
-              : "Composed from live data"}
+            Composed live by the agent
           </div>
 
           {/* Signal chips */}
@@ -462,11 +460,6 @@ export function ResultView({ id }: { id: string }) {
             <ReviewLine icon="love" text={result.reviews.love} />
             <ReviewLine icon="complain" text={result.reviews.complain} />
             <ReviewLine icon="verdict" text={result.reviews.verdict} />
-            <div className="mt-3 text-[11px] text-muted-foreground">
-              {result.reviews.source === "gemini"
-                ? "Synthesised by Gemini from review samples."
-                : "Templated from review samples — add a Gemini API key to upgrade."}
-            </div>
           </div>
         </section>
 
