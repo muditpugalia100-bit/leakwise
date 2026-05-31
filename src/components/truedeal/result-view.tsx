@@ -341,8 +341,8 @@ export function ResultView({ id }: { id: string }) {
           </div>
         </section>
 
-        {/* Brand direct */}
-        {result.brandDirect && (
+        {/* Brand direct — not shown for travel (no brand-direct concept) */}
+        {result.brandDirect && result.vertical !== "travel" && (
           <section
             className="mt-8 animate-fade-up"
             style={{ animationDelay: "360ms" }}
@@ -456,7 +456,7 @@ export function ResultView({ id }: { id: string }) {
           style={{ animationDelay: "520ms" }}
         >
           <h3 className="small-caps text-xs text-muted-foreground">
-            What reviewers say
+            {result.vertical === "travel" ? "What travellers say" : "What reviewers say"}
           </h3>
           <div className="mt-3 rounded-2xl border border-border bg-muted/60 p-5 sm:p-6">
             <ReviewLine icon="love" text={result.reviews.love} />
@@ -464,8 +464,8 @@ export function ResultView({ id }: { id: string }) {
             <ReviewLine icon="verdict" text={result.reviews.verdict} />
             <div className="mt-3 text-[11px] text-muted-foreground">
               {result.reviews.source === "gemini"
-                ? "Synthesised by Gemini from Amazon reviews."
-                : "Templated from Amazon review samples — add a Gemini API key to upgrade."}
+                ? "Synthesised by Gemini from review samples."
+                : "Templated from review samples — add a Gemini API key to upgrade."}
             </div>
           </div>
         </section>

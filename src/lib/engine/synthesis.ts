@@ -44,7 +44,14 @@ async function geminiReviewSummary(
   samples: AmazonReview[],
 ): Promise<ReviewSentiment | null> {
   const key = process.env.GEMINI_API_KEY;
-  if (!key || !samples.length) return null;
+  if (!key) {
+    console.log("[gemini.reviews] skipped: no GEMINI_API_KEY set");
+    return null;
+  }
+  if (!samples.length) {
+    console.log("[gemini.reviews] skipped: no review samples passed");
+    return null;
+  }
 
   try {
     const genai = new GoogleGenerativeAI(key);
@@ -73,13 +80,18 @@ ${reviewBlock}`;
       verdict?: string;
     };
     if (!parsed.love || !parsed.complain || !parsed.verdict) return null;
+    console.log("[gemini.reviews] success");
     return {
       love: parsed.love,
       complain: parsed.complain,
       verdict: parsed.verdict,
       source: "gemini",
     };
-  } catch {
+  } catch (err) {
+    console.log(
+      "[gemini.reviews] failed:",
+      err instanceof Error ? err.message : String(err),
+    );
     return null;
   }
 }
@@ -141,7 +153,10 @@ function templateVerdict(v: VerdictInput): string {
 
 async function geminiVerdict(v: VerdictInput): Promise<string | null> {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
+  if (!key) {
+    console.log("[gemini.verdict] skipped: no GEMINI_API_KEY set");
+    return null;
+  }
   try {
     const genai = new GoogleGenerativeAI(key);
     const model = genai.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -167,8 +182,13 @@ async function geminiVerdict(v: VerdictInput): Promise<string | null> {
 Facts:
 ${facts}`;
     const res = await model.generateContent(prompt);
+    console.log("[gemini.verdict] success");
     return res.response.text().trim();
-  } catch {
+  } catch (err) {
+    console.log(
+      "[gemini.verdict] failed:",
+      err instanceof Error ? err.message : String(err),
+    );
     return null;
   }
 }

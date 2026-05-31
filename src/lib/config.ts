@@ -12,7 +12,12 @@ export type PlatformId =
   | "jiomart"
   | "shopify"
   | "trustpilot"
-  | "google_trends";
+  | "google_trends"
+  | "booking"
+  | "agoda"
+  | "airbnb"
+  | "skyscanner"
+  | "google_flights";
 
 export interface VerticalConfig {
   id: Vertical;
@@ -53,10 +58,9 @@ export const VERTICALS: Record<Vertical, VerticalConfig> = {
     id: "travel",
     label: "Travel",
     shortLabel: "Travel",
-    tagline: "Flights and hotels — coming soon.",
+    tagline: "Flights and hotels across the major aggregators.",
     accent: "#B8624F",
-    platforms: [],
-    comingSoon: true,
+    platforms: ["booking", "agoda", "airbnb", "skyscanner", "google_flights"],
   },
 };
 
@@ -73,6 +77,11 @@ export const PLATFORM_NAMES: Record<PlatformId, string> = {
   shopify: "Brand site",
   trustpilot: "Trustpilot",
   google_trends: "Google Trends",
+  booking: "Booking.com",
+  agoda: "Agoda",
+  airbnb: "Airbnb",
+  skyscanner: "Skyscanner",
+  google_flights: "Google Flights",
 };
 
 /**
@@ -93,6 +102,11 @@ export const PLATFORM_COLORS: Record<PlatformId, string> = {
   shopify: "#95BF47",
   trustpilot: "#00B67A",
   google_trends: "#4285F4",
+  booking: "#003580",
+  agoda: "#5392F9",
+  airbnb: "#FF5A5F",
+  skyscanner: "#0770E3",
+  google_flights: "#4285F4",
 };
 
 /**

@@ -18,6 +18,15 @@ const GROCERY_KEYWORDS = [
   "diaper", "tissue", "sanitiser", "cleaner",
 ];
 
+const TRAVEL_KEYWORDS = [
+  "flight", "flights", "fly to", "fly from", "airfare", "ticket",
+  "hotel", "stay", "resort", "homestay", "airbnb", "booking",
+  "vacation", "trip", "holiday", "getaway", "weekend in", "weekend at",
+  "room in", "rooms in", "beach", "mountain", "honeymoon",
+  "delhi to", "mumbai to", "bangalore to", "goa", "manali", "shimla",
+  "kerala", "ladakh", "rajasthan", "udaipur", "jaipur", "munnar",
+];
+
 export function routeVertical(
   input: ProductInput,
   anchor?: { title?: string; category?: string; brand?: string },
@@ -31,6 +40,7 @@ export function routeVertical(
     .join(" ")
     .toLowerCase();
 
+  if (TRAVEL_KEYWORDS.some((k) => text.includes(k))) return "travel";
   if (ELECTRONICS_KEYWORDS.some((k) => text.includes(k))) return "electronics";
   if (GROCERY_KEYWORDS.some((k) => text.includes(k))) return "grocery";
   return "general";

@@ -16,7 +16,7 @@ export function CategoryTiles({
     general: "Atomic Habits by James Clear",
     electronics: "Sony WH-CH720N headphones",
     grocery: "Aashirvaad Atta 5kg",
-    travel: "Flight Delhi to Goa",
+    travel: "Hotel in Goa for the weekend",
   };
 
   return (

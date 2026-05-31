@@ -21,8 +21,10 @@ const PROGRESS_STEPS = [
 const DEMO_QUERIES = [
   "Sony WH-CH720N headphones",
   "boAt Airdopes 161",
-  "Atomic Habits by James Clear",
+  "Atomic Habits",
   "Aashirvaad Atta 5kg",
+  "Hotel in Goa weekend",
+  "Delhi to Goa flight",
 ];
 
 const STEP_TICK_MS = 480;

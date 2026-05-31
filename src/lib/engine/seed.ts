@@ -352,9 +352,150 @@ const AASHIRVAAD_ATTA: SeedDef = {
     "Buy from BigBasket — ₹229 with BB Star beats every other delivered price by ₹16–₹60 and arrives the same day. Blinkit is the right pick at ₹245 only if you need it in 10 minutes; Amazon Fresh and JioMart trail. Atta prices barely move so there's nothing to gain by waiting. The per-pack saving is small, but at ~18 grocery runs a year the projected savings on the bottom card stop being a rounding error.",
 };
 
+// ── Goa weekend hotel — travel ──────────────────────────────────────────────
+const GOA_HOTEL: SeedDef = {
+  matchers: [
+    /hotel.*goa/i,
+    /goa.*(hotel|stay|weekend|resort)/i,
+    /weekend.*goa/i,
+    /stay.*goa/i,
+  ],
+  vertical: "travel",
+  product: { title: "Weekend stay in North Goa — 2 nights, 2 guests", brand: "—" },
+  listings: [
+    {
+      platform: "booking",
+      title: "Boutique stay near Anjuna Beach — Sea view room",
+      productUrl: "https://www.booking.com/hotel/in/goa-anjuna-stay.html",
+      price: 8400,
+      rating: 8.6,
+      ratingCount: 1240,
+      offerNote: "Free cancellation till 24h",
+    },
+    {
+      platform: "agoda",
+      title: "Anjuna Beachside — Deluxe room, breakfast included",
+      productUrl: "https://www.agoda.com/anjuna-beachside",
+      price: 9100,
+      rating: 8.4,
+      offerNote: "Pay at property",
+    },
+    {
+      platform: "airbnb",
+      title: "Private villa with pool — Vagator, 2BR",
+      productUrl: "https://www.airbnb.co.in/rooms/goa-vagator-villa",
+      price: 7600,
+      rating: 4.9,
+      ratingCount: 86,
+      offerNote: "Superhost · Self check-in",
+    },
+  ],
+  fakeDiscount: {
+    kind: "real-deal",
+    message:
+      "Booking.com is at the 30-day floor for this weekend's date range. No fake markdown here.",
+  },
+  trends: {
+    kind: "rising",
+    index: 71,
+    message:
+      "Search interest for Goa stays is climbing into the long weekend — prices will firm up over the next 48h.",
+  },
+  deal: {
+    kind: "active-deal",
+    message:
+      "Booking flash sale: 12% off if you book within 24 hours with the BKINGFLASH code.",
+    expiresHint: "~24 hours",
+  },
+  reviews: {
+    love: "Most stays in this cluster get praised for the private pool access and proximity to the Anjuna flea market.",
+    complain: "Wifi reliability is hit-or-miss across all three options — call out a backup workspace if you're working remote.",
+    verdict: "Solid picks for a 2-night weekend — Airbnb wins on cost AND privacy for two.",
+  },
+  reviewSamples: [
+    { rating: 5, title: "Quiet villa, easy beach access", text: "Stayed two nights, pool was clean, hosts handled airport drop. Walking distance to a few cafés. Exactly what I wanted for a weekend break." },
+    { rating: 4, title: "Lovely property, slow wifi", text: "Place is beautiful and the views from the deluxe room are great. The catch is wifi — fine for messaging, useless for video calls. Came as a leisure trip so it didn't matter." },
+    { rating: 5, title: "Superhost delivered", text: "Self-check-in worked perfectly, instructions were clear, and the kitchen was stocked with the basics. Worth every rupee for a private pool stay this close to Vagator." },
+    { rating: 3, title: "Anjuna gets noisy on weekends", text: "If you're booking for a weekend, ask for the back-facing room. The beachside has live music until 11pm-ish. Property itself is great." },
+  ],
+  verdictParagraph:
+    "Book the Airbnb in Vagator — ₹7,600 for 2 nights with a private pool beats Booking.com by ₹800 and Agoda by ₹1,500. Booking's flash sale lands you closer to Agoda even with the code, and Agoda's 'pay at property' tag isn't a real saving here. Search interest is rising into the long weekend, so locking the Airbnb today is the safer play. Heads-up across all three: wifi reliability is patchy — fine for a getaway, plan around it if you're remote-working.",
+};
+
+// ── Delhi → Goa flight — travel ─────────────────────────────────────────────
+const DEL_GOI_FLIGHT: SeedDef = {
+  matchers: [
+    /delhi.*(goa|goi)/i,
+    /(goa|goi).*delhi/i,
+    /flight.*goa/i,
+    /goa.*flight/i,
+  ],
+  vertical: "travel",
+  product: { title: "Delhi → Goa, one-way, next Saturday", brand: "—" },
+  listings: [
+    {
+      platform: "skyscanner",
+      title: "IndiGo · 6E-5023 · 06:25 → 09:05 · non-stop",
+      productUrl: "https://www.skyscanner.co.in/transport/flights/del/goi",
+      price: 4380,
+      offerNote: "1 cabin bag only · no meal",
+    },
+    {
+      platform: "google_flights",
+      title: "IndiGo · 6E-5023 · same itinerary",
+      productUrl: "https://www.google.com/flights",
+      price: 4420,
+      offerNote: "Showed ₹4,380 yesterday — fare locked at booking time",
+    },
+    {
+      platform: "booking",
+      title: "IndiGo · 6E-2168 · 09:50 → 12:35 · non-stop",
+      productUrl: "https://flights.booking.com",
+      price: 4750,
+      offerNote: "Booking.com convenience fee included",
+    },
+  ],
+  fakeDiscount: {
+    kind: "flat",
+    message:
+      "Airfare for this route held flat all week — today is in line with the 30-day median.",
+  },
+  trends: {
+    kind: "rising",
+    index: 64,
+    message:
+      "Searches for Delhi-Goa are climbing into the weekend — fares will harden over the next 36h.",
+  },
+  deal: {
+    kind: "no-deal",
+    message:
+      "No active flight-deal banner for this route on any aggregator right now.",
+  },
+  reviews: {
+    love: "Travellers consistently rate 6E-5023 as the most on-time IndiGo morning slot for this route.",
+    complain: "Window-side allocation gets aggressive priced — pay only if you actively want it.",
+    verdict: "IndiGo morning slot is the right pick — book on Skyscanner.",
+  },
+  reviewSamples: [
+    { rating: 5, title: "Reliable morning IndiGo", text: "Took 6E-5023 twice in the last 6 months, on-time both times. Compact aircraft but for 2.5 hours it's fine. No frills, exactly what you want for a domestic hop." },
+    { rating: 4, title: "Use Skyscanner, skip aggregator add-ons", text: "Found it ₹40 cheaper on Skyscanner than Google Flights showed me 20 minutes later. Convenience fees on third-party aggregators stack quickly — book direct via the airline if you can." },
+    { rating: 3, title: "Don't pay for window seat", text: "₹450 for a window seat on a 2.5h flight is a scam. Skip the seat add-on, you'll get assigned a seat anyway." },
+    { rating: 5, title: "Same-day rebooking went smooth", text: "Had to shift my flight by one day, IndiGo charged ₹1,800 change fee and it was done in 5 minutes via the app. No drama." },
+  ],
+  verdictParagraph:
+    "Book IndiGo 6E-5023 via Skyscanner — ₹4,380 for the 06:25 non-stop beats Google Flights by ₹40 and Booking.com's later slot by ₹370 once their convenience fee lands. Fare for this route has been flat all week so there's no edge in waiting; demand is climbing into the weekend, which usually firms prices in the next 36h. Skip the window-seat add-on — it's the most-flagged complaint on this route and adds ₹450 for a 2.5h hop. Lock it today.",
+};
+
 // ── Registry + matcher ──────────────────────────────────────────────────────
 
-const SEEDS: SeedDef[] = [SONY_CH720N, BOAT_AIRDOPES, ATOMIC_HABITS, AASHIRVAAD_ATTA];
+const SEEDS: SeedDef[] = [
+  SONY_CH720N,
+  BOAT_AIRDOPES,
+  ATOMIC_HABITS,
+  AASHIRVAAD_ATTA,
+  GOA_HOTEL,
+  DEL_GOI_FLIGHT,
+];
 
 export function findSeed(input: string): SeedDef | null {
   for (const s of SEEDS) {
